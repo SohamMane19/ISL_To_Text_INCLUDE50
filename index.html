@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Prediction</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    .container {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      width: 400px;
+    }
+
+    input[type="file"] {
+      margin: 10px 0;
+    }
+
+    button {
+      padding: 10px 15px;
+      font-size: 16px;
+      color: #fff;
+      background-color: #007bff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .results {
+      margin-top: 20px;
+      padding: 10px;
+      background: #e9ecef;
+      border-radius: 5px;
+      text-align: left;
+    }
+
+    .error {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Sign Prediction</h1>
+  <div class="container">
+    <form id="upload-form">
+      <label for="file-upload">Upload a .mov file:</label>
+      <input type="file" id="file-upload" accept=".mov" required />
+      <button type="submit">Predict</button>
+    </form>
+    <div id="output" class="results" style="display: none;"></div>
+    <div id="error" class="error" style="display: none;"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById('upload-form');
+    const output = document.getElementById('output');
+    const error = document.getElementById('error');
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      output.style.display = 'none';
+      error.style.display = 'none';
+
+      const fileInput = document.getElementById('file-upload');
+      const file = fileInput.files[0];
+
+      if (!file) {
+        error.textContent = "Please select a .mov file.";
+        error.style.display = 'block';
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const response = await fetch('http://127.0.0.1:8000/predict/', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          output.innerHTML = `
+            <p><strong>Predicted Sign:</strong> ${data.predicted_sign}</p>
+            <p><strong>Confidence:</strong> ${(data.confidence * 100).toFixed(2)}%</p>
+          `;
+          output.style.display = 'block';
+        } else {
+          const errorData = await response.json();
+          throw new Error(errorData.detail || "An error occurred.");
+        }
+      } catch (err) {
+        error.textContent = `Error: ${err.message}`;
+        error.style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>
