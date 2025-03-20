@@ -20,7 +20,7 @@ This project is a **Sign Language to Text Recognition System** that uses a deep 
 ## **Installation & Setup**
 ### **1. Clone the repository**  
 ```sh
-git clone https://github.com/your-username/your-repo-name.git  
+git clone git@github.com:SohamMane19/ISL_To_Text_INCLUDE50.git 
 cd your-repo-name
 ```
 ### **2. Install dependencies**  
